@@ -117,7 +117,7 @@ if ('ontouchstart' in window) {
     player.addEventListener('touchmove', onTouchMove);
     player.addEventListener('touchend', onTouchEnd);
 } else {
-   console.log('desc')
+    console.log('desc')
 }
 
 
@@ -249,3 +249,32 @@ function gameOver() {
     })
     //location.reload();
 }
+
+// var xhr = new XMLHttpRequest();
+// xhr.open('GET', 'https://949a-185-143-147-248.ngrok-free.app/results', true);
+// xhr.onreadystatechange = function () {
+//     if (xhr.readyState === 4 && xhr.status === 200) {
+//         let responseData = JSON.parse(xhr.responseText);
+//         console.log(responseData);
+//     }
+// };
+// xhr.send();
+
+var dataToSend = { key1: 'value1', key2: 'value2' }; // Здесь вы можете заменить значения на свои
+fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        // Здесь также можно добавить другие необходимые заголовки
+    },
+    body: JSON.stringify(dataToSend)
+})
+    .then(response => response.json())
+    .then(data => {
+        // Здесь обрабатывайте ответ от сервера
+        console.log(data);
+    })
+    .catch(error => {
+        // Обработка ошибок
+        console.error('Ошибка:', error);
+    });

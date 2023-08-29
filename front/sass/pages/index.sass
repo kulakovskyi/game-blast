@@ -85,7 +85,20 @@ body
     font-size: 20px
     line-height: 28px
     max-width: 500px
-    margin: 0 0 40px 0
+    margin: 0 0 20px 0
+  &__input
+    display: inline-block
+    border: 2px solid black
+    border-radius: 5px
+    outline: none
+    width: 100%
+    padding: 14px 15px
+    background: white
+    color: black
+    margin: 0 0 20px 0
+    &::placeholder
+      color: #ff267e
+      font-family: $font-suisse-med
   &__btn
     border: none
     outline: none
@@ -156,6 +169,7 @@ body
   background-color: black
   position: relative
   #player
+    max-width: 50px
     width: 50px
     height: 70px
     background: url("../img/space.png") no-repeat 0 0/contain
@@ -203,6 +217,11 @@ body
       background: url("../img/heart.png") no-repeat 0 0/contain
       width: 40px
       height: 40px
+  .bonus
+    width: 50px
+    height: 50px
+    position: absolute
+    background: url("../img/shield.png") no-repeat 0 0/contain
 
   #playButton
     position: absolute
@@ -215,7 +234,7 @@ body
 
 @keyframes fall
     to
-      top: 100vh
+      top: 110vh
 
 
 
