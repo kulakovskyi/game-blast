@@ -303,7 +303,7 @@ function gameOver() {
                 console.error('Ошибка:', error);
             });
             })
-    //location.reload();
+    location.reload();
 }
 
 
