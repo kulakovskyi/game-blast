@@ -10,37 +10,37 @@ let updatedData = {
 };
 
 //tableResult
-var xhr = new XMLHttpRequest();
-xhr.open('GET', 'https://949a-185-143-147-248.ngrok-free.app/results', true);
-xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-        let responseData = JSON.parse(xhr.responseText);
-        console.log(responseData);
-        responseData.sort((a, b) => b.points - a.points);
-
-        const table = document.querySelector('.resultTable');
-
-        // Вывод первых 10 записей
-        for (let i = 0; i < Math.min(10, responseData.length); i++) {
-            const row = document.createElement('div');
-            row.classList.add('resultTable__row');
-
-            const nameCell = document.createElement('div');
-            const scoreCell = document.createElement('div');
-
-            nameCell.classList.add('resultTable__name');
-            scoreCell.classList.add('resultTable__score');
-
-            nameCell.textContent = responseData[i].name;
-            scoreCell.textContent = responseData[i].points;
-
-            row.appendChild(nameCell);
-            row.appendChild(scoreCell);
-            table.appendChild(row);
-        }
-    }
-};
-xhr.send();
+// var xhr = new XMLHttpRequest();
+// xhr.open('GET', 'https://949a-185-143-147-248.ngrok-free.app/results', true);
+// xhr.onreadystatechange = function () {
+//     if (xhr.readyState === 4 && xhr.status === 200) {
+//         let responseData = JSON.parse(xhr.responseText);
+//         console.log(responseData);
+//         responseData.sort((a, b) => b.points - a.points);
+//
+//         const table = document.querySelector('.resultTable');
+//
+//         // Вывод первых 10 записей
+//         for (let i = 0; i < Math.min(10, responseData.length); i++) {
+//             const row = document.createElement('div');
+//             row.classList.add('resultTable__row');
+//
+//             const nameCell = document.createElement('div');
+//             const scoreCell = document.createElement('div');
+//
+//             nameCell.classList.add('resultTable__name');
+//             scoreCell.classList.add('resultTable__score');
+//
+//             nameCell.textContent = responseData[i].name;
+//             scoreCell.textContent = responseData[i].points;
+//
+//             row.appendChild(nameCell);
+//             row.appendChild(scoreCell);
+//             table.appendChild(row);
+//         }
+//     }
+// };
+// xhr.send();
 
 
 const cometSpeed = "20s"
@@ -287,23 +287,22 @@ function gameOver() {
     over.classList.remove('_hidden')
     console.log('game over')
     overBtn.addEventListener('click', () => {
-        //document.location.reload();
-        fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedData)
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('обновлен:', data);
+        document.location.reload();
+        // fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify(updatedData)
+        // })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         console.log('обновлен:', data);
+        //     })
+        //     .catch(error => {
+        //         console.error('Ошибка:', error);
+        //     });
             })
-            .catch(error => {
-                console.error('Ошибка:', error);
-            });
-            })
-    location.reload();
 }
 
 
