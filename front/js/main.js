@@ -4,22 +4,23 @@ let comets = [];
 let blasts = [];
 
 
-
-
 const cometSpeed = "20s"
 function createComet() {
-    const comet = document.createElement('div');
-    comet.classList.add('comet');
-    comet.style.left = Math.random() * (gameContainer.clientWidth - 50) + 'px';
-    comet.style.top = '-50px'; // Start above the screen
-    comet.style.animation = `fall ${cometSpeed} linear`; // Применяем заданную скорость
-    gameContainer.appendChild(comet);
-    comets.push(comet);
+    if(!shouldStop){
+        const comet = document.createElement('div');
+        comet.classList.add('comet');
+        comet.style.left = Math.random() * (gameContainer.clientWidth - 50) + 'px';
+        comet.style.top = '-50px'; // Start above the screen
+        comet.style.animation = `fall ${cometSpeed} linear`; // Применяем заданную скорость
+        gameContainer.appendChild(comet);
+        comets.push(comet);
 
-    if (comets.length > maxComets) {
-        const removedComet = comets.shift();
-        removedComet.remove();
+        if (comets.length > maxComets) {
+            const removedComet = comets.shift();
+            removedComet.remove();
+        }
     }
+
 }
 
 function moveComets() {
@@ -30,6 +31,8 @@ function moveComets() {
 }
 
 let score = 0; // Изначальное значение счетчика
+let isHit = false; // Флаг для отслеживания попадания
+let lives = 3;
 
 function checkCollision() {
     for (const comet of comets) {
@@ -43,7 +46,13 @@ function checkCollision() {
             playerRect.top < cometRect.bottom &&
             playerRect.bottom > cometRect.top
         ) {
-            gameOver();
+            if (!isHit) {
+                handleHit(comet);
+                isHit = true;
+                setTimeout(() => {
+                    isHit = false;
+                }, 1000); // Задержка в 1 секунду перед следующим попаданием
+            }
         }
 
         for (const blast of blasts) {
@@ -64,8 +73,33 @@ function checkCollision() {
 
         // Проверка на достижение нижней границы экрана
         if (cometRect.bottom >= window.innerHeight) {
-            gameOver();
+            if (!isHit) {
+                handleHit(comet);
+                isHit = true;
+                setTimeout(() => {
+                    isHit = false;
+                }, 1000); // Задержка в 1 секунду перед следующим попаданием
+            }
         }
+    }
+
+}
+
+function handleHit(comet) {
+    comet.remove();
+    const livesScore = document.querySelector('.lives')
+    lives--;
+    const hearts = document.querySelectorAll('.heart')
+    hearts.forEach(item => {item.remove()})
+    for (let i = 0; i < lives; i++){
+
+        let heartElement = document.createElement('div')
+        heartElement.classList.add('heart')
+        livesScore.appendChild(heartElement)
+    }
+
+    if(lives === 0){
+        gameOver()
     }
 }
 
@@ -161,17 +195,20 @@ function startGame() {
 
 const maxComets = 30; // Заданное количество комет
 const cometInterval = 1000; // Интервал создания комет
-
+let shouldStop = false;
 
 
 function gameLoop() {
-    moveComets();
-    checkCollision();
-    moveBlasts();
-    requestAnimationFrame(gameLoop);
-    if (isMobile) {
-        startAutoShoot(); // Запустить автоматические выстрелы
+    if(!shouldStop){
+        moveComets();
+        checkCollision();
+        moveBlasts();
+        requestAnimationFrame(gameLoop);
+        if (isMobile) {
+            startAutoShoot(); // Запустить автоматические выстрелы
+        }
     }
+
 }
 
 
@@ -199,13 +236,16 @@ function moveBlasts() {
 
 function gameOver() {
     document.removeEventListener('mousemove', mouseEvent);
+    shouldStop = true
+    lives = 3;
     const over = document.querySelector('.over')
     const overBtn = document.querySelector('.over__btn')
     const overScore = document.querySelector('.over__text')
     overScore.innerHTML = `Your score: ${score}`;
     over.classList.remove('_hidden')
+    console.log('game over')
     overBtn.addEventListener('click', () => {
-        location.reload();
+        document.location.reload();
     })
     //location.reload();
 }
