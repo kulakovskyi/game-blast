@@ -52,36 +52,145 @@ body
       left: 0
       z-index: 15
 
-#game-container
+.start
+  position: fixed
   width: 100%
-  height: 100vh
+  height: 100%
+  z-index: 1000
+  backdrop-filter: blur(10px)
+  background: rgba(41, 41, 41, 0.5)
+  display: flex
+  align-items: center
+  justify-content: center
+  transition: opacity .8s ease, visibility .8s ease
+  &._hidden
+    opacity: 0
+    visibility: hidden
+  &__container
+    display: flex
+    flex-direction: column
+    align-items: center
+  &__title
+    font-family: $font-suisse-bold
+    color: #ff267e
+    text-transform: uppercase
+    font-size: 40px
+    line-height: 45px
+    margin: 0 0 20px 0
+  &__text
+    font-family: $font-suisse-med
+    text-align: center
+    color: #FFFFFF
+    font-size: 20px
+    line-height: 28px
+    max-width: 500px
+    margin: 0 0 40px 0
+  &__btn
+    border: none
+    outline: none
+    display: inline-block
+    font-family: $font-suisse-med
+    padding: 15px 60px
+    background: #05C489
+    color: #000055
+    text-transform: uppercase
+    border-radius: 10px
+    cursor: pointer
+    font-size: 20px
+
+
+.over
+  position: fixed
+  width: 100%
+  height: 100%
+  z-index: 1000
+  backdrop-filter: blur(10px)
+  background: rgba(41, 41, 41, 0.5)
+  display: flex
+  align-items: center
+  justify-content: center
+  transition: opacity .8s ease, visibility .8s ease
+  &._hidden
+    opacity: 0
+    visibility: hidden
+  &__container
+    display: flex
+    flex-direction: column
+    align-items: center
+  &__title
+    font-family: $font-suisse-bold
+    color: #ff267e
+    text-transform: uppercase
+    font-size: 40px
+    line-height: 45px
+    margin: 0 0 20px 0
+  &__text
+    font-family: $font-suisse-med
+    text-align: center
+    color: #FFFFFF
+    font-size: 20px
+    line-height: 28px
+    max-width: 500px
+    margin: 0 0 40px 0
+  &__btn
+    border: none
+    outline: none
+    display: inline-block
+    font-family: $font-suisse-med
+    padding: 15px 60px
+    background: #05C489
+    color: #000055
+    text-transform: uppercase
+    border-radius: 10px
+    cursor: pointer
+    font-size: 20px
+
+
+#game-container
+  background: url("../img/bg.png") no-repeat 50% 0/cover
+  width: 100%
+  height: 100%
   background-color: black
   position: relative
   #player
     width: 50px
-    height: 50px
-    background-color: blue
+    height: 70px
+    background: url("../img/space.png") no-repeat 0 0/contain
     position: absolute
     bottom: 0
+    left: 0
   .comet
     width: 50px
     height: 50px
-    background-color: red
     position: absolute
+    background: url("../img/comet.png") no-repeat 0 0/contain
     //animation: fall 3s linear
     //animation-fill-mode: forwards
 
   .blast
     width: 5px
     height: 20px
+
     background-color: yellow
     position: absolute
   #score
     position: absolute
-    top: 10px
-    right: 10px
-    color: white
+    top: 0
+    right: 0
     font-size: 20px
+    background: #ff267e
+    color: #FFFFFF
+    font-family: $font-suisse-med
+    padding: 10px 15px
+    z-index: 100
+
+  #playButton
+    position: absolute
+    top: 10px
+    left: 10px
+    z-index: 500
+
+
 
 
 @keyframes fall

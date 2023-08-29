@@ -4,7 +4,9 @@ let comets = [];
 let blasts = [];
 
 
-const cometSpeed = "7s"
+
+
+const cometSpeed = "20s"
 function createComet() {
     const comet = document.createElement('div');
     comet.classList.add('comet');
@@ -36,10 +38,10 @@ function checkCollision() {
 
         // Проверка на столкновение с синим блоком (игроком)
         if (
-            cometRect.left < playerRect.right &&
-            cometRect.right > playerRect.left &&
-            cometRect.top < playerRect.bottom &&
-            cometRect.bottom > playerRect.top
+            playerRect.left < cometRect.right &&
+            playerRect.right > cometRect.left &&
+            playerRect.top < cometRect.bottom &&
+            playerRect.bottom > cometRect.top
         ) {
             gameOver();
         }
@@ -73,11 +75,63 @@ function updateScore(value) {
     scoreElement.textContent = `Score: ${score}`;
 }
 
+let isMobile = false;
+let playerX = 0;
+if ('ontouchstart' in window) {
+    isMobile = true;
+    player.addEventListener('touchstart', onTouchStart);
+    player.addEventListener('touchmove', onTouchMove);
+    player.addEventListener('touchend', onTouchEnd);
+} else {
+   console.log('desc')
+}
 
-document.addEventListener('mousemove', (event) => {
+
+function onTouchStart(event) {
+    event.preventDefault();
+    playerX = event.touches[0].pageX - player.offsetWidth / 2;
+    player.style.left = `${playerX}px`;
+}
+
+function onTouchMove(event) {
+    event.preventDefault();
+    playerX = event.touches[0].pageX - player.offsetWidth / 2;
+    player.style.left = `${playerX}px`;
+}
+
+function onTouchEnd(event) {
+    event.preventDefault();
+    stopAutoShoot();
+}
+
+let autoShootInterval;
+function startAutoShoot() {
+    if (!autoShootInterval) {
+        autoShootInterval = setInterval(function () {
+            const playerLeft = parseInt(player.style.left) + player.clientWidth / 2 - 2.5;
+            const blast = document.createElement('div');
+            blast.classList.add('blast');
+            blast.style.left = playerLeft + 'px';
+            blast.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
+            gameContainer.appendChild(blast);
+            blasts.push(blast);
+        }, 300); // Интервал между выстрелами
+    }
+}
+
+
+function stopAutoShoot() {
+    clearInterval(autoShootInterval);
+    autoShootInterval = null;
+}
+
+
+document.addEventListener('mousemove', mouseEvent);
+
+function mouseEvent(event){
     const x = event.clientX - gameContainer.getBoundingClientRect().left;
     player.style.left = x - player.clientWidth / 2 + 'px';
-});
+}
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') {
@@ -91,23 +145,34 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-gameLoop();
+const playButton = document.getElementById('playButton');
+const startScreen = document.querySelector('.start')
+playButton.addEventListener('click', startGame);
+
+function startGame() {
+    startScreen.classList.add('_hidden')
+    gameLoop(); // Запустить игровой цикл
+    setInterval(() => {
+        if (comets.length < maxComets) {
+            createComet();
+        }
+    }, cometInterval);
+}
 
 const maxComets = 30; // Заданное количество комет
 const cometInterval = 1000; // Интервал создания комет
+
+
 
 function gameLoop() {
     moveComets();
     checkCollision();
     moveBlasts();
     requestAnimationFrame(gameLoop);
-}
-
-setInterval(() => {
-    if (comets.length < maxComets) {
-        createComet();
+    if (isMobile) {
+        startAutoShoot(); // Запустить автоматические выстрелы
     }
-}, cometInterval);
+}
 
 
 function shoot() {
@@ -133,6 +198,14 @@ function moveBlasts() {
 }
 
 function gameOver() {
-    alert('Game Over');
-    location.reload();
+    document.removeEventListener('mousemove', mouseEvent);
+    const over = document.querySelector('.over')
+    const overBtn = document.querySelector('.over__btn')
+    const overScore = document.querySelector('.over__text')
+    overScore.innerHTML = `Your score: ${score}`;
+    over.classList.remove('_hidden')
+    overBtn.addEventListener('click', () => {
+        location.reload();
+    })
+    //location.reload();
 }
