@@ -4,6 +4,45 @@ let comets = [];
 let blasts = [];
 
 
+let updatedData = {
+    points: '',
+    user: { name: 'Новое имя' }
+};
+
+//tableResult
+var xhr = new XMLHttpRequest();
+xhr.open('GET', 'https://949a-185-143-147-248.ngrok-free.app/results', true);
+xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+        let responseData = JSON.parse(xhr.responseText);
+        console.log(responseData);
+        responseData.sort((a, b) => b.points - a.points);
+
+        const table = document.querySelector('.resultTable');
+
+        // Вывод первых 10 записей
+        for (let i = 0; i < Math.min(10, responseData.length); i++) {
+            const row = document.createElement('div');
+            row.classList.add('resultTable__row');
+
+            const nameCell = document.createElement('div');
+            const scoreCell = document.createElement('div');
+
+            nameCell.classList.add('resultTable__name');
+            scoreCell.classList.add('resultTable__score');
+
+            nameCell.textContent = responseData[i].name;
+            scoreCell.textContent = responseData[i].points;
+
+            row.appendChild(nameCell);
+            row.appendChild(scoreCell);
+            table.appendChild(row);
+        }
+    }
+};
+xhr.send();
+
+
 const cometSpeed = "20s"
 function createComet() {
     if(!shouldStop){
@@ -181,9 +220,11 @@ document.addEventListener('keydown', (event) => {
 
 const playButton = document.getElementById('playButton');
 const startScreen = document.querySelector('.start')
+const nameInput = document.querySelector('.start__input')
 playButton.addEventListener('click', startGame);
 
 function startGame() {
+    updatedData.user.name = nameInput.value;
     startScreen.classList.add('_hidden')
     gameLoop(); // Запустить игровой цикл
     setInterval(() => {
@@ -241,15 +282,57 @@ function gameOver() {
     const over = document.querySelector('.over')
     const overBtn = document.querySelector('.over__btn')
     const overScore = document.querySelector('.over__text')
+    updatedData.points = score
     overScore.innerHTML = `Your score: ${score}`;
     over.classList.remove('_hidden')
     console.log('game over')
     overBtn.addEventListener('click', () => {
-        document.location.reload();
-    })
+        //document.location.reload();
+        fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('обновлен:', data);
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+            })
     //location.reload();
 }
 
+
+
+// var updatedData = [
+//     {points: 100, user: { name: 'Name1' } },
+//     {points: 500, user: { name: 'Name2' } },
+// ];
+
+
+
+
+// fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
+//     method: 'POST',
+//     headers: {
+//         'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify(updatedData)
+// })
+//     .then(response => response.json())
+//     .then(data => {
+//         console.log('обновлен:', data);
+//     })
+//     .catch(error => {
+//         console.error('Ошибка:', error);
+//     });
+
+
+//
 // var xhr = new XMLHttpRequest();
 // xhr.open('GET', 'https://949a-185-143-147-248.ngrok-free.app/results', true);
 // xhr.onreadystatechange = function () {
@@ -260,21 +343,3 @@ function gameOver() {
 // };
 // xhr.send();
 
-var dataToSend = { key1: 'value1', key2: 'value2' }; // Здесь вы можете заменить значения на свои
-fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        // Здесь также можно добавить другие необходимые заголовки
-    },
-    body: JSON.stringify(dataToSend)
-})
-    .then(response => response.json())
-    .then(data => {
-        // Здесь обрабатывайте ответ от сервера
-        console.log(data);
-    })
-    .catch(error => {
-        // Обработка ошибок
-        console.error('Ошибка:', error);
-    });
