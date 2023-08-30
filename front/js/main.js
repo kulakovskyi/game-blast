@@ -9,7 +9,7 @@ let updatedData = {
 };
 
 //tableResult
-var xhr = new XMLHttpRequest();
+let xhr = new XMLHttpRequest();
 xhr.open('GET', 'https://favoritpromo.com/api_toxic/users', true);
 xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
@@ -67,7 +67,6 @@ function createComet() {
         comets.push(comet);
 
         if(score >= levelTwoAnchor) cometSpeed = levelTwoCometSpeed
-
 
     }
 }
@@ -235,17 +234,72 @@ const nameInput = document.querySelector('.start__input')
 playButton.addEventListener('click', startGame);
 
 
+//validation input
+function validInput() {
+    return new Promise((resolve, reject) => {
+        let inputValue = nameInput.value;
+
+        // Проверка на минимальное количество символов
+        if (inputValue.trim().length < 4) {
+            nameInput.value = '';
+            nameInput.placeholder = 'Name should be at least 4 characters';
+            resolve(false);
+            return;
+        }
+
+        // Проверка на пустоту
+        if (!inputValue.trim()) {
+            nameInput.placeholder = 'Enter your name!';
+            resolve(false);
+            return;
+        }
+
+        // Проверка на наличие только цифр
+        if (/^\d+$/.test(inputValue)) {
+            nameInput.value = '';
+            nameInput.placeholder = 'Can not be just numbers';
+            resolve(false);
+            return;
+        }
+
+        xhr.open('GET', 'https://favoritpromo.com/api_toxic/users', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                let responseData = JSON.parse(xhr.responseText);
+
+                // Функция для проверки уникальности имени в массиве данных
+                function isNameUnique(name) {
+                    return responseData.every(item => item.user.name !== name);
+                }
+
+                if (isNameUnique(inputValue)) {
+                    updatedData.user.name = inputValue;
+                    resolve(true);
+                } else {
+                    nameInput.value = '';
+                    nameInput.placeholder = 'Name already exists';
+                    resolve(false);
+                }
+            }
+        };
+        xhr.send();
+    });
+}
+
 function startGame() {
+    validInput().then(isUnique => {
+        if (isUnique) {
+            startScreen.classList.add('_hidden')
+            gameLoop(); // Запустить игровой цикл
+            console.log(cometInterval)
+            let intervalCometsFun = setInterval(() => {
+                createComet();
 
-    updatedData.user.name = nameInput.value;
-    startScreen.classList.add('_hidden')
-    gameLoop(); // Запустить игровой цикл
-    console.log(cometInterval)
-    let intervalCometsFun = setInterval(() => {
-        createComet();
-
-    }, cometInterval);
-
+            }, cometInterval);
+        } else {
+            console.log('name not valid')
+        }
+    });
 
 }
 
@@ -291,11 +345,21 @@ function gameOver() {
     const over = document.querySelector('.over')
     const overBtn = document.querySelector('.over__btn')
     const overScore = document.querySelector('.over__text')
+    const loadSpinner = document.querySelector('.loading')
+    let dataSent = false;
     updatedData.points = score
     overScore.innerHTML = `Your score: ${score}`;
     over.classList.remove('_hidden')
     console.log('game over')
+
     overBtn.addEventListener('click', () => {
+        if (dataSent) {
+            location.reload(); // Перезагрузить страницу при втором клике, если данные уже отправлены
+            return;
+        }
+        // Показать индикатор загрузки и заблокировать кнопку
+        loadSpinner.style.display = 'block'
+        overBtn.style.pointerEvents = 'none';
 
         fetch('https://favoritpromo.com/api_toxic/user', {
             method: 'POST',
@@ -306,18 +370,17 @@ function gameOver() {
         })
             .then(response => response.json())
             .then(data => {
-                console.log('обновлен:', data);
+                // Скрыть индикатор загрузки и показать статус успешной отправки
+                overBtn.style.pointerEvents = 'initial';
+                loadSpinner.style.display = 'none'
+                overBtn.innerText = 'Play again';
+                dataSent = true;
+
             })
             .catch(error => {
                 console.error('Ошибка:', error);
             });
-
-            //document.location.reload();
-            overBtn.style.pointerEvents = 'none'
-            setTimeout(function (){
-                document.location.reload();
-            }, 5000)
-            })
+    });
 }
 
 // fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
