@@ -174,34 +174,33 @@ function updateScore(value) {
 // отслеживание для мобилки
 let isMobile = false;
 let playerX = 0;
+let playerY = window.innerHeight - player.clientHeight;
 if ('ontouchstart' in window) {
+
     isMobile = true;
+    document.removeEventListener('mousemove', mouseEvent);
     player.addEventListener('touchstart', onTouchStart);
     player.addEventListener('touchmove', onTouchMove);
     player.addEventListener('touchend', onTouchEnd);
+    player.style.top = `${playerY}px`
 } else {
     console.log('desc')
 }
 
-// Обработчики событий для перемещения корабля на мобильных устройствах
-let startX = 0;
-let startY = 0;
+
+
 
 function onTouchStart(event) {
     event.preventDefault();
     const touch = event.touches[0];
-    startX = touch.pageX - player.offsetWidth / 2;
-    startY = touch.pageY - player.offsetHeight / 2;
-    player.style.left = `${startX}px`;
-    player.style.top = `${startY}px`;
+    playerX = touch.pageX - player.offsetWidth / 2;
+    player.style.left = `${playerX}px`;
 }
 function onTouchMove(event) {
     event.preventDefault();
     const touch = event.touches[0];
-    const offsetX = touch.pageX - startX;
-    const offsetY = touch.pageY - startY;
-    player.style.left = `${startX + offsetX}px`;
-    player.style.top = `${startY + offsetY}px`;
+    const offsetX = touch.pageX - playerX;
+    player.style.left = `${playerX + offsetX}px`;
 }
 function onTouchEnd(event) {
     event.preventDefault();
@@ -214,11 +213,10 @@ function startAutoShoot() {
     if (!autoShootInterval) {
         autoShootInterval = setInterval(function () {
             const playerLeft = parseInt(player.style.left) + player.clientWidth / 2 - 2.5;
-            const playerTop = parseInt(player.style.top);
             const blast = document.createElement('div');
             blast.classList.add('blast');
             blast.style.left = playerLeft + 'px';
-            blast.style.top = playerTop + 'px'; // Изменили координаты
+            blast.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
             gameContainer.appendChild(blast);
             blasts.push(blast);
         }, 300); // Интервал между выстрелами
@@ -256,7 +254,8 @@ function stopAutoShoot() {
 
 
 // cлежение за мышкой на десктопе
-document.addEventListener('mousemove', mouseEvent);
+if(!isMobile) document.addEventListener('mousemove', mouseEvent);
+
 function mouseEvent(event){
     const x = event.clientX - gameContainer.getBoundingClientRect().left;
     const y = event.clientY - gameContainer.getBoundingClientRect().top; // Получаем положение по вертикали
@@ -315,6 +314,14 @@ function validInput() {
         if (/^\d+$/.test(inputValue)) {
             nameInput.value = '';
             nameInput.placeholder = 'Can not be just numbers';
+            resolve(false);
+            return;
+        }
+
+        // Проверка на наличие пробелов
+        if (inputValue.indexOf(' ') !== -1) {
+            nameInput.value = '';
+            nameInput.placeholder = 'Spaces are not allowed';
             resolve(false);
             return;
         }
@@ -405,7 +412,7 @@ function moveBlasts() {
             blast.remove();
             blasts = blasts.filter(b => b !== blast);
         } else {
-            blast.style.top = (currentTop - 5) + 'px';
+            blast.style.top = (currentTop - 10) + 'px';
         }
     }
 }
@@ -460,6 +467,8 @@ function gameOver() {
             });
     });
 }
+
+
 
 // fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
 //     method: 'POST',
