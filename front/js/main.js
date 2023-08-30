@@ -313,6 +313,10 @@ function gameOver() {
             });
 
             //document.location.reload();
+            overBtn.style.pointerEvents = 'none'
+            setTimeout(function (){
+                document.location.reload();
+            }, 5000)
             })
 }
 
