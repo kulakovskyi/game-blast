@@ -1,3 +1,4 @@
+const body = document.querySelector('body')
 const player = document.getElementById('player');
 const gameContainer = document.getElementById('game-container');
 let comets = [];
@@ -330,6 +331,7 @@ function validInput() {
 function startGame() {
     validInput().then(isUnique => {
         if (isUnique) {
+            body.style.cursor = 'none'
             startScreen.classList.add('_hidden')
             gameLoop(); // Запустить игровой цикл
             intervalCometsFun = setTimeout(createComet, cometInterval);
@@ -378,6 +380,7 @@ function moveBlasts() {
 }
 
 function gameOver() {
+    body.style.cursor = 'default'
     //останавливаем все анимации
     document.removeEventListener('mousemove', mouseEvent);
     shouldStop = true
