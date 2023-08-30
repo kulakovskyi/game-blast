@@ -15,12 +15,15 @@ xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status === 200) {
         let responseData = JSON.parse(xhr.responseText);
         console.log(responseData);
-        responseData.sort((a, b) => b.points - a.points);
+        let responseDataFilter = responseData.filter(function(item) {
+            return item.user.name.trim() !== 'Gregory';
+        });
+        responseDataFilter.sort((a, b) => b.points - a.points);
 
         const table = document.querySelector('.resultTable');
 
         // Вывод первых 10 записей
-        for (let i = 0; i < Math.min(10, responseData.length); i++) {
+        for (let i = 0; i < Math.min(10, responseDataFilter.length); i++) {
             const row = document.createElement('div');
             row.classList.add('resultTable__row');
 
@@ -30,8 +33,8 @@ xhr.onreadystatechange = function () {
             nameCell.classList.add('resultTable__name');
             scoreCell.classList.add('resultTable__score');
 
-            nameCell.textContent = responseData[i].user.name;
-            scoreCell.textContent = responseData[i].points;
+            nameCell.textContent = responseDataFilter[i].user.name;
+            scoreCell.textContent = responseDataFilter[i].points;
 
             row.appendChild(nameCell);
             row.appendChild(scoreCell);
@@ -176,7 +179,6 @@ let isMobile = false;
 let playerX = 0;
 let playerY = window.innerHeight - player.clientHeight;
 if ('ontouchstart' in window) {
-
     isMobile = true;
     document.removeEventListener('mousemove', mouseEvent);
     player.addEventListener('touchstart', onTouchStart);
@@ -186,8 +188,6 @@ if ('ontouchstart' in window) {
 } else {
     console.log('desc')
 }
-
-
 
 
 function onTouchStart(event) {
@@ -223,29 +223,6 @@ function startAutoShoot() {
     }
 }
 
-//для двух автоматических выстрелов
-function startAutoShootTwoBlasts() {
-    if (!autoShootInterval) {
-        autoShootInterval = setInterval(function () {
-            const playerLeft = parseInt(player.style.left) + player.clientWidth / 2;
-
-            const blast1 = document.createElement('div');
-            blast1.classList.add('blast');
-            blast1.style.left = (playerLeft - 15) + 'px';
-            blast1.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
-            gameContainer.appendChild(blast1);
-            blasts.push(blast1);
-
-            const blast2 = document.createElement('div');
-            blast2.classList.add('blast');
-            blast2.style.left = (playerLeft + 15) + 'px';
-            blast2.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
-            gameContainer.appendChild(blast2);
-            blasts.push(blast2);
-
-        }, 300); // Интервал между выстрелами
-    }
-}
 
 function stopAutoShoot() {
     clearInterval(autoShootInterval);
@@ -387,23 +364,6 @@ function shoot() {
     blasts.push(blast);
 }
 
-//функция для выстрелов сразу двумя
-function shootTwoBlasts() {
-    const playerLeft = parseInt(player.style.left) + player.clientWidth / 2;
-    const blast1 = document.createElement('div');
-    blast1.classList.add('blast');
-    blast1.style.left = (playerLeft - 15) + 'px';
-    blast1.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
-    gameContainer.appendChild(blast1);
-    blasts.push(blast1);
-
-    const blast2 = document.createElement('div');
-    blast2.classList.add('blast');
-    blast2.style.left = (playerLeft + 15) + 'px';
-    blast2.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
-    gameContainer.appendChild(blast2);
-    blasts.push(blast2);
-}
 
 function moveBlasts() {
     for (const blast of blasts) {
@@ -412,7 +372,7 @@ function moveBlasts() {
             blast.remove();
             blasts = blasts.filter(b => b !== blast);
         } else {
-            blast.style.top = (currentTop - 10) + 'px';
+            blast.style.top = (currentTop - 7) + 'px';
         }
     }
 }
@@ -470,33 +430,7 @@ function gameOver() {
 
 
 
-// fetch('https://949a-185-143-147-248.ngrok-free.app/results', {
-//     method: 'POST',
-//     headers: {
-//         'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify(updatedData)
-// })
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log('обновлен:', data);
-//     })
-//     .catch(error => {
-//         console.error('Ошибка:', error);
-//     });
-//
 
 
-// var xhr = new XMLHttpRequest();
-// xhr.open('GET', 'https://favoritpromo.com/api_toxic/users', true);
-// xhr.onreadystatechange = function () {
-//     if (xhr.readyState === 4 && xhr.status === 200) {
-//         let responseData = JSON.parse(xhr.responseText);
-//         console.log(responseData);
-//     } else {
-//         console.log('error')
-//     }
-// };
-// xhr.send();
 
 
