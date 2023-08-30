@@ -15,6 +15,10 @@ $font-wulkan: WulkanDisplay, sans-serif
 
 
 body
+  text-size-adjust: 100%
+  -webkit-text-size-adjust: 100%
+  -moz-text-size-adjust: 100%
+  -ms-text-size-adjust: 100%
   -webkit-tap-highlight-color: rgba(0,0,0,0)
   overscroll-behavior: none
   height: 100%
@@ -89,7 +93,8 @@ body
     max-width: 500px
     margin: 0 0 20px 0
   &__input
-    text-size-adjust: 100%
+    font-size: 13px
+
     display: inline-block
     border: 2px solid black
     border-radius: 5px
