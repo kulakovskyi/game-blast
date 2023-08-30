@@ -8,7 +8,7 @@ let updatedData = {
     user: { name: 'Новое имя' }
 };
 
-//tableResult
+//вывод талицы на стартовый экран с апи
 let xhr = new XMLHttpRequest();
 xhr.open('GET', 'https://favoritpromo.com/api_toxic/users', true);
 xhr.onreadystatechange = function () {
@@ -42,6 +42,7 @@ xhr.onreadystatechange = function () {
 xhr.send();
 
 
+let intervalCometsFun; // Объявляем переменную интервала
 let  cometSpeed = '15s' // cкорость кометы
 let score = 0; // Изначальное значение счетчика
 let isHit = false; // Флаг для отслеживания попадания
@@ -49,9 +50,10 @@ let lives = 3; // Количество жизней
 let cometInterval = 1000; // Интервал создания комет
 let shouldStop = false; // для остановки комет после проигрыша
 
-let levelTwoAnchor = 4; // Первый якорь для ускорения
-let levelTwoCometSpeed = '5s'; // Скорость кометы для второго уровня
-let levelTwoCometInterval = 100; // Интервал для второго уровня
+//Для второго уровня
+let levelTwoAnchor = 20; // Первый якорь для ускорения
+let levelTwoCometSpeed = '13s'; // Скорость кометы для второго уровня
+let levelTwoCometInterval = 900; // Интервал для второго уровня
 
 
 
@@ -68,7 +70,15 @@ function createComet() {
 
         if(score >= levelTwoAnchor) cometSpeed = levelTwoCometSpeed
 
+        // Обновляем интервал после каждого создания кометы
+        if (score >= levelTwoAnchor && cometInterval !== levelTwoCometInterval) {
+            clearTimeout(intervalCometsFun); // Очищаем текущий таймаут
+            cometInterval = levelTwoCometInterval;
+            intervalCometsFun = setTimeout(createComet, cometInterval); // Создаем новый таймаут с обновленным интервалом
+        }
+
     }
+    intervalCometsFun = setTimeout(createComet, cometInterval);
 }
 
 //ф-я для полета комет
@@ -155,6 +165,9 @@ function updateScore(value) {
     score += value;
     const scoreElement = document.getElementById('score');
     scoreElement.textContent = `Score: ${score}`;
+    if (score >= levelTwoAnchor) {
+        cometInterval = levelTwoCometInterval;
+    }
 }
 
 
@@ -170,15 +183,25 @@ if ('ontouchstart' in window) {
     console.log('desc')
 }
 
+// Обработчики событий для перемещения корабля на мобильных устройствах
+let startX = 0;
+let startY = 0;
+
 function onTouchStart(event) {
     event.preventDefault();
-    playerX = event.touches[0].pageX - player.offsetWidth / 2;
-    player.style.left = `${playerX}px`;
+    const touch = event.touches[0];
+    startX = touch.pageX - player.offsetWidth / 2;
+    startY = touch.pageY - player.offsetHeight / 2;
+    player.style.left = `${startX}px`;
+    player.style.top = `${startY}px`;
 }
 function onTouchMove(event) {
     event.preventDefault();
-    playerX = event.touches[0].pageX - player.offsetWidth / 2;
-    player.style.left = `${playerX}px`;
+    const touch = event.touches[0];
+    const offsetX = touch.pageX - startX;
+    const offsetY = touch.pageY - startY;
+    player.style.left = `${startX + offsetX}px`;
+    player.style.top = `${startY + offsetY}px`;
 }
 function onTouchEnd(event) {
     event.preventDefault();
@@ -191,12 +214,37 @@ function startAutoShoot() {
     if (!autoShootInterval) {
         autoShootInterval = setInterval(function () {
             const playerLeft = parseInt(player.style.left) + player.clientWidth / 2 - 2.5;
+            const playerTop = parseInt(player.style.top);
             const blast = document.createElement('div');
             blast.classList.add('blast');
             blast.style.left = playerLeft + 'px';
-            blast.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
+            blast.style.top = playerTop + 'px'; // Изменили координаты
             gameContainer.appendChild(blast);
             blasts.push(blast);
+        }, 300); // Интервал между выстрелами
+    }
+}
+
+//для двух автоматических выстрелов
+function startAutoShootTwoBlasts() {
+    if (!autoShootInterval) {
+        autoShootInterval = setInterval(function () {
+            const playerLeft = parseInt(player.style.left) + player.clientWidth / 2;
+
+            const blast1 = document.createElement('div');
+            blast1.classList.add('blast');
+            blast1.style.left = (playerLeft - 15) + 'px';
+            blast1.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
+            gameContainer.appendChild(blast1);
+            blasts.push(blast1);
+
+            const blast2 = document.createElement('div');
+            blast2.classList.add('blast');
+            blast2.style.left = (playerLeft + 15) + 'px';
+            blast2.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
+            gameContainer.appendChild(blast2);
+            blasts.push(blast2);
+
         }, 300); // Интервал между выстрелами
     }
 }
@@ -211,7 +259,9 @@ function stopAutoShoot() {
 document.addEventListener('mousemove', mouseEvent);
 function mouseEvent(event){
     const x = event.clientX - gameContainer.getBoundingClientRect().left;
+    const y = event.clientY - gameContainer.getBoundingClientRect().top; // Получаем положение по вертикали
     player.style.left = x - player.clientWidth / 2 + 'px';
+    player.style.top = y - player.clientHeight / 2 + 'px'; // Устанавливаем положение корабля по вертикали
 }
 
 // для атаки на десктопе и перемещения стрелками
@@ -243,6 +293,13 @@ function validInput() {
         if (inputValue.trim().length < 4) {
             nameInput.value = '';
             nameInput.placeholder = 'Name should be at least 4 characters';
+            resolve(false);
+            return;
+        }
+
+        if (inputValue.trim().length >= 10) {
+            nameInput.value = '';
+            nameInput.placeholder = 'Name must be no more than 10 characters';
             resolve(false);
             return;
         }
@@ -291,11 +348,7 @@ function startGame() {
         if (isUnique) {
             startScreen.classList.add('_hidden')
             gameLoop(); // Запустить игровой цикл
-            console.log(cometInterval)
-            let intervalCometsFun = setInterval(() => {
-                createComet();
-
-            }, cometInterval);
+            intervalCometsFun = setTimeout(createComet, cometInterval);
         } else {
             console.log('name not valid')
         }
@@ -317,13 +370,32 @@ function gameLoop() {
 
 // ф-я для стреляния
 function shoot() {
+    const playerLeft = parseInt(player.style.left) + player.clientWidth / 2 - 2.5;
+    const playerTop = parseInt(player.style.top); // Положение корабля по вертикали
     const blast = document.createElement('div');
     blast.classList.add('blast');
-    const playerLeft = parseInt(player.style.left) + player.clientWidth / 2 - 2.5;
     blast.style.left = playerLeft + 'px';
-    blast.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
+    blast.style.top = playerTop + 'px'; // Устанавливаем положение выстрела по вертикали
     gameContainer.appendChild(blast);
     blasts.push(blast);
+}
+
+//функция для выстрелов сразу двумя
+function shootTwoBlasts() {
+    const playerLeft = parseInt(player.style.left) + player.clientWidth / 2;
+    const blast1 = document.createElement('div');
+    blast1.classList.add('blast');
+    blast1.style.left = (playerLeft - 15) + 'px';
+    blast1.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
+    gameContainer.appendChild(blast1);
+    blasts.push(blast1);
+
+    const blast2 = document.createElement('div');
+    blast2.classList.add('blast');
+    blast2.style.left = (playerLeft + 15) + 'px';
+    blast2.style.top = gameContainer.clientHeight - player.clientHeight + 'px';
+    gameContainer.appendChild(blast2);
+    blasts.push(blast2);
 }
 
 function moveBlasts() {
@@ -333,24 +405,30 @@ function moveBlasts() {
             blast.remove();
             blasts = blasts.filter(b => b !== blast);
         } else {
-            blast.style.top = (currentTop - 10) + 'px';
+            blast.style.top = (currentTop - 5) + 'px';
         }
     }
 }
 
 function gameOver() {
+    //останавливаем все анимации
     document.removeEventListener('mousemove', mouseEvent);
     shouldStop = true
     lives = 3;
+    //Форма отправки на вервер
     const over = document.querySelector('.over')
     const overBtn = document.querySelector('.over__btn')
     const overScore = document.querySelector('.over__text')
     const loadSpinner = document.querySelector('.loading')
-    let dataSent = false;
-    updatedData.points = score
     overScore.innerHTML = `Your score: ${score}`;
     over.classList.remove('_hidden')
     console.log('game over')
+
+    //флаг для перезагрузки страницы
+    let dataSent = false;
+    //записываем в объект данные про очки
+    updatedData.points = score
+
 
     overBtn.addEventListener('click', () => {
         if (dataSent) {
